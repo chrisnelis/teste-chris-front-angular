@@ -1,0 +1,125 @@
+<section>
+<div class="row">
+  <div class="col-md-4 col-12">
+  <div>
+    <label>Título</label> <br>
+    <input class="input-card" type="text" [maxlength]="100" [(ngModel)]="title">
+  </div>
+
+  <div>
+    <label>Tipo</label> <br>
+    <select  class="input-card" [(ngModel)]="type">
+      <option value="Filme">Filme</option>
+      <option value="Seriado">Seriado</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Gênero</label> <br>
+    <select  class="input-card" [(ngModel)]="description">
+      <option value="Ação">Ação</option>
+      <option value="Aventura">Aventura</option>
+      <option value="Cinema de arte">Cinema de arte</option>
+      <option value="Chanchada">Chanchada</option>
+      <option value="Comédia">Comédia</option>
+      <option value="Dança">Dança</option>
+      <option value="Documentário">Documentário</option>
+      <option value="Espionagem">Espionagem</option>
+      <option value="Faroeste">Faroeste</option>
+      <option value="Fantasia">Fantasia</option>
+      <option value="Ficção científica">Ficção científica</option>
+      <option value="Mistério">Mistério</option>
+      <option value="Musical">Musical</option>
+      <option value="Romance">Romance</option>
+      <option value="Terror">Terror</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Ano de lançamento</label> <br>
+    <input class="input-card" type="text" mask="0000"  [(ngModel)]="year">
+  </div>
+
+  <div>
+    <label>Duração</label> <br>
+    <input class="input-card" type="text"  [(ngModel)]="time"  [maxlength]="50">
+  </div>
+
+  <div class="form-floating">
+    <textarea class="form-control" id="sinopse" style="height: 100px" [maxlength]="300"
+     [(ngModel)]="sinopse"></textarea>
+    <label for="sinopse">Sinopse</label>
+    <small>{{sinopse?.length}}/300</small>
+  </div>
+
+</div>
+
+
+  <div class="col-md-8 col-12">
+       <div class="row">
+
+           <div class="col-6">
+            <b>Elenco principal</b>
+              <input type="text" class="input-card" [(ngModel)]="actor_name"  [maxlength]="50">
+              <button class="btn btn-secondary mt-2" (click)="addCast()">Adicionar <img src="../../../../assets/icons/arrow.svg" alt="icon"></button>
+           </div>
+           <div class="col-6">
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item" *ngFor="let oC of cast;let i = index">
+                <div class="row">
+                    <div class="col-8">
+                      {{oC.actor}}
+                    </div>
+                    <div class="col-4 text-end">
+                        <button class="btn" (click)="removeCast(i)"><img src="../../../../assets/icons/delete.svg" alt="remover"></button>
+                    </div>
+                </div>
+
+              </li>
+            </ul>
+           </div>
+       </div>
+
+       <div class="row mt-4">
+              <div class="col-6">
+                <b>Diretor</b>
+                <input type="text" class="input-card" [(ngModel)]="director_name"  [maxlength]="50">
+                <button class="btn btn-secondary mt-2" (click)="addDirector()">Adicionar <img src="../../../../assets/icons/arrow.svg" alt="icon"></button>
+            </div>
+            <div class="col-6">
+              <ul class="list-group list-group-flush">
+                <li class="list-group-item" *ngFor="let oD of director;let i = index">
+                  <div class="row">
+                      <div class="col-8">
+                        {{oD.director}}
+                      </div>
+                      <div class="col-4 text-end">
+                          <button class="btn" (click)="removeDirector(i)"><img src="../../../../assets/icons/delete.svg" alt="remover"></button>
+                      </div>
+                  </div>
+
+                </li>
+              </ul>
+             </div>
+       </div>
+
+     <!---- adicionar imagem -->
+      <div class="text-center">
+        <p class="fw-bold">Imagem da capa</p>
+        <input type="file" (change)="uploadimg($event)" single>
+        <div><img [src]="usr" width="250" alt="capa"></div>
+      </div>
+   </div>
+
+
+   <div class="text-center">
+
+    <div *ngIf="loaderAdd" class="d-flex justify-content-center">
+      <div class="spinner"></div>
+    </div>
+
+      <button class="btn-success" (click)="saveTitle()" *ngIf="!loaderAdd">Salvar</button>
+   </div>
+
+</div>
+</section>

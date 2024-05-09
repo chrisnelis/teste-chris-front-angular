@@ -1,0 +1,100 @@
+<section>
+  <div *ngIf="loader" class="d-flex justify-content-center mt-4">
+    <div class="spinner"></div>
+  </div>
+
+    <div class="title-box" *ngIf="!loader">
+      <h1>{{objData?.film_name}}</h1>
+      <div class="row">
+        <div class="col-md-4 col-12 mt-4">
+            <img [src]="apiUrl+objData?.image" class="img-title" alt="img-title">
+        </div>
+
+        <div class="col-md-6 col-12 mt-4">
+          <div class="row">
+                 <div class="col-6">
+                  <small>Sua avaliação</small><br>
+                  <div class="btn-a" *ngIf="userLogOn?.level == 2">
+                   <a data-bs-toggle="modal" data-bs-target="#exampleModal">Avaliar</a>
+                 </div>
+                 <div  class="btn-a" *ngIf="!userLogOn || userLogOn.length == 0 ">
+                    <a  (click)="login()">
+                      Faça login para avaliar
+                    </a>
+                 </div>
+              </div>
+
+              <div class="col-6 text-end">
+                <small>Avaliação geral</small><br>
+                <span>
+                <img src="../../../assets/icons/star.svg" alt="icon">
+                  4/4</span>
+              </div>
+          </div>
+
+                <div class="mb-2 mt-2">
+                  <span class="sticker m-1">{{objData?.description}}</span>
+                  <span class="sticker m-1">{{objData?.type}}</span>
+
+                </div>
+                <span>
+                  {{objData?.sinopse}}
+                </span>
+
+                <div class="mt-4">
+                  <ul class="list-group list-group-flush">
+                    <li class="list-group-item">
+                     <b>Direção: &nbsp;</b><span *ngFor="let dD of director">{{dD.director}}. &nbsp;</span>
+                    </li>
+                    <li class="list-group-item">
+                     <b>Elenco principal: &nbsp;</b> <span *ngFor="let oD of cast"> {{oD.actor}}.&nbsp; </span>
+                      </li>
+                  </ul>
+                </div>
+        </div>
+      </div>
+    </div>
+</section>
+
+
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body mx-auto">
+        <div class="text-center">
+         <p class="fw-bold">SEU VOTO</p>
+         <h5 class="fw-bold">{{objData?.film_name}}</h5>
+       </div>
+
+        <input type="checkbox" class="btn-vote" name="options-base" id="option5" (click)="selectVote(1)" [checked]="vote >= 1">
+        <label class="btn" for="option5">
+          <svg [ngClass]="{'svg':vote >= 1}" xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#5f6368"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg>
+        </label>
+
+        <input type="checkbox" class="btn-vote" name="options-base" id="option6" (click)="selectVote(2)" [checked]="vote >= 2">
+        <label class="btn" for="option6">
+          <svg [ngClass]="{'svg':vote >= 2}" xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#5f6368"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg>
+        </label>
+
+
+        <input type="checkbox" class="btn-vote" name="options-base" id="option7" (click)="selectVote(3)"[checked]="vote >= 3">
+        <label class="btn" for="option7">
+          <svg [ngClass]="{'svg':vote >= 3}" xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#5f6368"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg>
+        </label>
+
+
+        <input type="checkbox" class="btn-vote" name="options-base" id="option8" (click)="selectVote(4)"[checked]="vote >= 4">
+        <label class="btn" for="option8">
+          <svg [ngClass]="{'svg':vote >= 4}" xmlns="http://www.w3.org/2000/svg" height="50px" viewBox="0 -960 960 960" width="50px" fill="#5f6368"><path d="m354-287 126-76 126 77-33-144 111-96-146-13-58-136-58 135-146 13 111 97-33 143ZM233-120l65-281L80-590l288-25 112-265 112 265 288 25-218 189 65 281-247-149-247 149Zm247-350Z"/></svg>
+        </label>
+
+        <div class="text-center mt-4">
+            <button class="btn-ok">Votar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,99 @@
+
+.banner-home{
+  background-image: url("../../../assets/images/freepik-export-202405061948574TKU.jpeg");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  width: 100vw;
+  height: 500px;
+}
+
+.card-home {
+  cursor: pointer;
+  width: 100%;
+  height: 550px;
+  margin-left: 20px;
+  background-color: #000;
+  border-radius: 12px;
+  color: #ffff;
+  margin-bottom: 50px;
+}
+
+.card-home:hover{
+ box-shadow: rgba(219, 31, 17, 0.4) 0px 8px 24px;
+ border-radius: 12px;
+
+}
+
+section{
+  overflow-x: hidden;
+}
+
+.box-img{
+  width: auto;
+  height: auto;
+  max-height: 400px;
+  padding: 5px;
+
+  & .img-film{
+      border-radius: 12px;
+      max-height: 380px;
+      min-height: 350px;
+      width: 100%;
+      height: auto;
+  }
+
+}
+
+.text-h3{
+  margin: 30px;
+  font-size: 30px;
+  color: #d40606;
+  font-weight: bold;
+}
+
+.infos{
+  padding: 10px;
+
+  & .box-sticker{
+   height: 20px;
+  }
+
+  & .box-title{
+    height: 70px;
+  }
+
+  & .box-especs{
+    height: 30px;
+  }
+
+  & .box-value{
+    height: 30px;
+   & span{
+      padding: 3px;
+   }
+  }
+
+}
+
+
+@media screen and (max-width: 800px) {
+
+  .card-home {
+    width: auto;
+    height: 450px;
+  }
+
+  .box-img{
+
+  & .img-film{
+    border-radius: 12px;
+    max-height: 250px;
+    min-height: 200px;
+    width: 100%;
+    height: auto;
+    }
+  }
+}
+
+

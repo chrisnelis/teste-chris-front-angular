@@ -1,0 +1,55 @@
+<section>
+  <div>
+     <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#addModal">Adicionar novo</button>
+
+     <div class="table-overflow">
+     <table class="table table-dark table-hover mt-4">
+      <thead>
+        <tr class="text-center">
+          <th>Título</th>
+          <th>Genero</th>
+          <th>Ano</th>
+          <th>Durcao</th>
+          <th>Ativo</th>
+          <th>Detalhes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="text-center" *ngFor="let oFA of objFilmsAdm">
+            <td>{{oFA.film_name}}</td>
+            <td>{{oFA.description}}</td>
+            <td>{{oFA.year_film}}</td>
+            <td>{{oFA.time}}</td>
+            <td>{{oFA.active}}</td>
+            <td>
+                <button class="btn" (click)="openEdit(oFA.id)">
+                    <img src="../../../assets/icons/folder.svg" alt="icon">
+                </button>
+            </td>
+        </tr>
+      </tbody>
+     </table>
+    </div>
+  </div>
+
+
+</section>
+
+
+
+
+<!-- Modal Adicionar -->
+<div class="modal fade" id="addModal" tabindex="-1" aria-labelledby="addModalLabel" aria-hidden="true">
+  <div class="modal-dialog  modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="addModalLabel">Adicionar</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <!--- importando component externo --->
+         <app-new></app-new>
+      </div>
+    </div>
+  </div>
+</div>

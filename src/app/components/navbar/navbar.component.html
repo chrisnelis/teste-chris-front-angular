@@ -1,0 +1,35 @@
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid">
+      <img src="../../../assets/images/logo.png" class="logo">
+    <button class="navbar-toggler bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link btn-menu" (click)="navigate('/')" type="button">Filmes e séries</a>
+        </li>
+      </ul>
+      <div class="d-flex navbar-nav">
+        <div class="d-flex" *ngIf="!user || user?.length === 0">
+          <span class="nav-link">Olá, visitante</span>
+          <a class="nav-link btn-menu" (click)="navigate('/login')" type="button">Fazer login</a>
+        </div>
+
+        <div class="d-flex" *ngIf="user?.user">
+          <span class="nav-link text-capitalize">Olá, {{user.user}}</span>
+          <a class="nav-link btn-menu" (click)="navigate('/admin')" type="button" *ngIf="user.level == 1">Painel do administrador</a>
+          <div class="dropdown" *ngIf="user.level == 2">
+              <a class="nav-link btn-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false">Minha conta</a>
+              <ul class="dropdown-menu">
+                <li><a class="dropdown-item" >Alterar senha</a></li>
+                <li><a class="dropdown-item" >Nome de exibição</a></li>
+              </ul>
+         </div>
+
+          <a class="nav-link btn-menu" type="button" (click)="logout()">Sair</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,47 @@
+section{
+  margin: auto;
+  width: 80vw;
+}
+
+.btn-tabs{
+  border: 1px solid transparent;
+  padding: 5px;
+  background-color: transparent;
+  width: 150px;
+  color: #5f5f5f;
+}
+
+.btn-tabs-active{
+  font-weight: bolder;
+  border-bottom: 2px solid #000;
+}
+
+.input-card{
+  width: 100%;
+  max-width: 450px;
+  height: 50px;
+  background-color: #FFF;
+}
+
+.card-admin{
+  border: 1px solid #000;
+  border-radius: 12px;
+  padding: 40px;
+  width: 100%;
+  max-width: 700px;
+  margin: auto;
+ & div{
+    text-align: center;
+ }
+}
+
+.tab-user{
+  overflow: auto;
+}
+
+@media screen and (max-width: 800px) {
+  section{
+    padding: 10px;
+    width: 100vw;
+  }
+}

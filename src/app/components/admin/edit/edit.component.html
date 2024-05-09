@@ -1,0 +1,10 @@
+<section>
+
+   <h4 class="text-center">{{this.objEdit.film[0].film_name}}</h4>
+  <div class="text-center">
+    <p class="fw-bold">Alterar Imagem</p>
+    <input type="file" (change)="uploadimg($event)" single>
+    <div><img [src]="usr" width="250" alt="capa"></div>
+  </div>
+
+</section>

@@ -1,0 +1,39 @@
+<section>
+<div class="banner-home"></div>
+
+<div class="container-fluid">
+
+  <h3 class="text-h3">Explore filmes e series</h3>
+
+
+
+  <div class="row">
+    <div class="col-md-2 col-6" *ngFor="let oF of objFilms">
+    <div class="card-home" (click)="openTitle(oF.id)">
+      <div class="box-img">
+        <img [src]='apiUrl+oF.image' [alt]='oF.film_name' class="img-film"/>
+      </div>
+      <div class="infos">
+         <div class="mb-2 box-sticker">
+            <span class="sticker m-1">{{oF.description}}</span>
+            <span class="sticker m-1">{{oF.type}}</span>
+         </div>
+
+         <div class="box-title">
+            <span class="fw-bold">{{oF.film_name}}</span>
+         </div>
+
+         <div class="box-especs">
+             <span>{{oF.year_film}} - Duração: {{oF.time}}</span>
+         </div>
+
+         <div class="d-flex justify-content-end mt-2 box-value">
+           <img src="../../../assets/icons/star.svg" width="25" alt="icon">
+            <span>4/4</span>
+         </div>
+      </div>
+    </div>
+  </div>
+ </div>
+</div>
+</section>

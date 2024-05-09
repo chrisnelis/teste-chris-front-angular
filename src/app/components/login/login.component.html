@@ -1,0 +1,30 @@
+<section>
+
+  <div class="form-login">
+    <div class="mat-card">
+          <div class="mat-card-content">
+            <div class="center-text">
+              <div>
+                <h5 class="m-auto">Faça seu login</h5>
+             </div>
+                <label>E-mail</label> <br>
+                <input  [(ngModel)]="email" required type="text">
+                <!-- @if (user.invalid) {
+                  <mat-error>Usuário inválido</mat-error>
+                } -->
+              <div class="mt-4">
+                <label>Senha</label><br>
+                <input [type]="hide ? 'password' : 'text'" [(ngModel)]="password" required>
+              </div>
+              <button class="btn-sign mt-4" (click)="login()">Entrar</button>
+                <div>
+                @if (error) {<span class="text-danger fw-bold">{{error}}</span>}
+                </div>
+
+            </div>
+          </div>
+
+    </div>
+</div>
+
+</section>
