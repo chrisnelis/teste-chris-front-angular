@@ -2026,7 +2026,6 @@ var asapScheduler = new AsapScheduler(AsapAction);
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/async.js
 var asyncScheduler = new AsyncScheduler(AsyncAction);
-var async = asyncScheduler;
 
 // node_modules/rxjs/dist/esm5/internal/scheduler/QueueAction.js
 var QueueAction = function(_super) {
@@ -2275,9 +2274,6 @@ function popResultSelector(args) {
 }
 function popScheduler(args) {
   return isScheduler(last(args)) ? args.pop() : void 0;
-}
-function popNumber(args, defaultValue) {
-  return typeof last(args) === "number" ? args.pop() : defaultValue;
 }
 
 // node_modules/rxjs/dist/esm5/internal/util/isArrayLike.js
@@ -2797,11 +2793,6 @@ var SequenceError = createErrorClass(function(_super) {
   };
 });
 
-// node_modules/rxjs/dist/esm5/internal/util/isDate.js
-function isValidDate(value) {
-  return value instanceof Date && !isNaN(value);
-}
-
 // node_modules/rxjs/dist/esm5/internal/operators/timeout.js
 var TimeoutError = createErrorClass(function(_super) {
   return function TimeoutErrorImpl(info) {
@@ -3082,111 +3073,6 @@ function forkJoin() {
   return resultSelector ? result.pipe(mapOneOrManyArgs(resultSelector)) : result;
 }
 
-// node_modules/rxjs/dist/esm5/internal/observable/fromEvent.js
-var nodeEventEmitterMethods = ["addListener", "removeListener"];
-var eventTargetMethods = ["addEventListener", "removeEventListener"];
-var jqueryMethods = ["on", "off"];
-function fromEvent(target, eventName, options, resultSelector) {
-  if (isFunction(options)) {
-    resultSelector = options;
-    options = void 0;
-  }
-  if (resultSelector) {
-    return fromEvent(target, eventName, options).pipe(mapOneOrManyArgs(resultSelector));
-  }
-  var _a = __read(isEventTarget(target) ? eventTargetMethods.map(function(methodName) {
-    return function(handler) {
-      return target[methodName](eventName, handler, options);
-    };
-  }) : isNodeStyleEventEmitter(target) ? nodeEventEmitterMethods.map(toCommonHandlerRegistry(target, eventName)) : isJQueryStyleEventEmitter(target) ? jqueryMethods.map(toCommonHandlerRegistry(target, eventName)) : [], 2), add = _a[0], remove2 = _a[1];
-  if (!add) {
-    if (isArrayLike(target)) {
-      return mergeMap(function(subTarget) {
-        return fromEvent(subTarget, eventName, options);
-      })(innerFrom(target));
-    }
-  }
-  if (!add) {
-    throw new TypeError("Invalid event target");
-  }
-  return new Observable(function(subscriber) {
-    var handler = function() {
-      var args = [];
-      for (var _i = 0; _i < arguments.length; _i++) {
-        args[_i] = arguments[_i];
-      }
-      return subscriber.next(1 < args.length ? args : args[0]);
-    };
-    add(handler);
-    return function() {
-      return remove2(handler);
-    };
-  });
-}
-function toCommonHandlerRegistry(target, eventName) {
-  return function(methodName) {
-    return function(handler) {
-      return target[methodName](eventName, handler);
-    };
-  };
-}
-function isNodeStyleEventEmitter(target) {
-  return isFunction(target.addListener) && isFunction(target.removeListener);
-}
-function isJQueryStyleEventEmitter(target) {
-  return isFunction(target.on) && isFunction(target.off);
-}
-function isEventTarget(target) {
-  return isFunction(target.addEventListener) && isFunction(target.removeEventListener);
-}
-
-// node_modules/rxjs/dist/esm5/internal/observable/timer.js
-function timer(dueTime, intervalOrScheduler, scheduler) {
-  if (dueTime === void 0) {
-    dueTime = 0;
-  }
-  if (scheduler === void 0) {
-    scheduler = async;
-  }
-  var intervalDuration = -1;
-  if (intervalOrScheduler != null) {
-    if (isScheduler(intervalOrScheduler)) {
-      scheduler = intervalOrScheduler;
-    } else {
-      intervalDuration = intervalOrScheduler;
-    }
-  }
-  return new Observable(function(subscriber) {
-    var due = isValidDate(dueTime) ? +dueTime - scheduler.now() : dueTime;
-    if (due < 0) {
-      due = 0;
-    }
-    var n = 0;
-    return scheduler.schedule(function() {
-      if (!subscriber.closed) {
-        subscriber.next(n++);
-        if (0 <= intervalDuration) {
-          this.schedule(void 0, intervalDuration);
-        } else {
-          subscriber.complete();
-        }
-      }
-    }, due);
-  });
-}
-
-// node_modules/rxjs/dist/esm5/internal/observable/merge.js
-function merge() {
-  var args = [];
-  for (var _i = 0; _i < arguments.length; _i++) {
-    args[_i] = arguments[_i];
-  }
-  var scheduler = popScheduler(args);
-  var concurrent = popNumber(args, Infinity);
-  var sources = args;
-  return !sources.length ? EMPTY : sources.length === 1 ? innerFrom(sources[0]) : mergeAll(concurrent)(from(sources, scheduler));
-}
-
 // node_modules/rxjs/dist/esm5/internal/observable/never.js
 var NEVER = new Observable(noop);
 
@@ -3200,51 +3086,6 @@ function filter(predicate, thisArg) {
     source.subscribe(createOperatorSubscriber(subscriber, function(value) {
       return predicate.call(thisArg, value, index++) && subscriber.next(value);
     }));
-  });
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/audit.js
-function audit(durationSelector) {
-  return operate(function(source, subscriber) {
-    var hasValue = false;
-    var lastValue = null;
-    var durationSubscriber = null;
-    var isComplete = false;
-    var endDuration = function() {
-      durationSubscriber === null || durationSubscriber === void 0 ? void 0 : durationSubscriber.unsubscribe();
-      durationSubscriber = null;
-      if (hasValue) {
-        hasValue = false;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-      isComplete && subscriber.complete();
-    };
-    var cleanupDuration = function() {
-      durationSubscriber = null;
-      isComplete && subscriber.complete();
-    };
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      hasValue = true;
-      lastValue = value;
-      if (!durationSubscriber) {
-        innerFrom(durationSelector(value)).subscribe(durationSubscriber = createOperatorSubscriber(subscriber, endDuration, cleanupDuration));
-      }
-    }, function() {
-      isComplete = true;
-      (!hasValue || !durationSubscriber || durationSubscriber.closed) && subscriber.complete();
-    }));
-  });
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/auditTime.js
-function auditTime(duration, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler;
-  }
-  return audit(function() {
-    return timer(duration, scheduler);
   });
 }
 
@@ -3294,50 +3135,6 @@ function concatMap(project, resultSelector) {
   return isFunction(resultSelector) ? mergeMap(project, resultSelector, 1) : mergeMap(project, 1);
 }
 
-// node_modules/rxjs/dist/esm5/internal/operators/debounceTime.js
-function debounceTime(dueTime, scheduler) {
-  if (scheduler === void 0) {
-    scheduler = asyncScheduler;
-  }
-  return operate(function(source, subscriber) {
-    var activeTask = null;
-    var lastValue = null;
-    var lastTime = null;
-    var emit = function() {
-      if (activeTask) {
-        activeTask.unsubscribe();
-        activeTask = null;
-        var value = lastValue;
-        lastValue = null;
-        subscriber.next(value);
-      }
-    };
-    function emitWhenIdle() {
-      var targetTime = lastTime + dueTime;
-      var now = scheduler.now();
-      if (now < targetTime) {
-        activeTask = this.schedule(void 0, targetTime - now);
-        subscriber.add(activeTask);
-        return;
-      }
-      emit();
-    }
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      lastValue = value;
-      lastTime = scheduler.now();
-      if (!activeTask) {
-        activeTask = scheduler.schedule(emitWhenIdle, dueTime);
-        subscriber.add(activeTask);
-      }
-    }, function() {
-      emit();
-      subscriber.complete();
-    }, void 0, function() {
-      lastValue = activeTask = null;
-    }));
-  });
-}
-
 // node_modules/rxjs/dist/esm5/internal/operators/defaultIfEmpty.js
 function defaultIfEmpty(defaultValue) {
   return operate(function(source, subscriber) {
@@ -3376,29 +3173,6 @@ function mapTo(value) {
   return map(function() {
     return value;
   });
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/distinctUntilChanged.js
-function distinctUntilChanged(comparator, keySelector) {
-  if (keySelector === void 0) {
-    keySelector = identity;
-  }
-  comparator = comparator !== null && comparator !== void 0 ? comparator : defaultCompare;
-  return operate(function(source, subscriber) {
-    var previousKey;
-    var first2 = true;
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var currentKey = keySelector(value);
-      if (first2 || !comparator(previousKey, currentKey)) {
-        first2 = false;
-        previousKey = currentKey;
-        subscriber.next(value);
-      }
-    }));
-  });
-}
-function defaultCompare(a, b) {
-  return a === b;
 }
 
 // node_modules/rxjs/dist/esm5/internal/operators/throwIfEmpty.js
@@ -3489,136 +3263,9 @@ function last2(predicate, defaultValue) {
   };
 }
 
-// node_modules/rxjs/dist/esm5/internal/operators/pairwise.js
-function pairwise() {
-  return operate(function(source, subscriber) {
-    var prev;
-    var hasPrev = false;
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var p = prev;
-      prev = value;
-      hasPrev && subscriber.next([p, value]);
-      hasPrev = true;
-    }));
-  });
-}
-
 // node_modules/rxjs/dist/esm5/internal/operators/scan.js
 function scan(accumulator, seed) {
   return operate(scanInternals(accumulator, seed, arguments.length >= 2, true));
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/share.js
-function share(options) {
-  if (options === void 0) {
-    options = {};
-  }
-  var _a = options.connector, connector = _a === void 0 ? function() {
-    return new Subject();
-  } : _a, _b = options.resetOnError, resetOnError = _b === void 0 ? true : _b, _c = options.resetOnComplete, resetOnComplete = _c === void 0 ? true : _c, _d = options.resetOnRefCountZero, resetOnRefCountZero = _d === void 0 ? true : _d;
-  return function(wrapperSource) {
-    var connection;
-    var resetConnection;
-    var subject;
-    var refCount2 = 0;
-    var hasCompleted = false;
-    var hasErrored = false;
-    var cancelReset = function() {
-      resetConnection === null || resetConnection === void 0 ? void 0 : resetConnection.unsubscribe();
-      resetConnection = void 0;
-    };
-    var reset = function() {
-      cancelReset();
-      connection = subject = void 0;
-      hasCompleted = hasErrored = false;
-    };
-    var resetAndUnsubscribe = function() {
-      var conn = connection;
-      reset();
-      conn === null || conn === void 0 ? void 0 : conn.unsubscribe();
-    };
-    return operate(function(source, subscriber) {
-      refCount2++;
-      if (!hasErrored && !hasCompleted) {
-        cancelReset();
-      }
-      var dest = subject = subject !== null && subject !== void 0 ? subject : connector();
-      subscriber.add(function() {
-        refCount2--;
-        if (refCount2 === 0 && !hasErrored && !hasCompleted) {
-          resetConnection = handleReset(resetAndUnsubscribe, resetOnRefCountZero);
-        }
-      });
-      dest.subscribe(subscriber);
-      if (!connection && refCount2 > 0) {
-        connection = new SafeSubscriber({
-          next: function(value) {
-            return dest.next(value);
-          },
-          error: function(err) {
-            hasErrored = true;
-            cancelReset();
-            resetConnection = handleReset(reset, resetOnError, err);
-            dest.error(err);
-          },
-          complete: function() {
-            hasCompleted = true;
-            cancelReset();
-            resetConnection = handleReset(reset, resetOnComplete);
-            dest.complete();
-          }
-        });
-        innerFrom(source).subscribe(connection);
-      }
-    })(wrapperSource);
-  };
-}
-function handleReset(reset, on) {
-  var args = [];
-  for (var _i = 2; _i < arguments.length; _i++) {
-    args[_i - 2] = arguments[_i];
-  }
-  if (on === true) {
-    reset();
-    return;
-  }
-  if (on === false) {
-    return;
-  }
-  var onSubscriber = new SafeSubscriber({
-    next: function() {
-      onSubscriber.unsubscribe();
-      reset();
-    }
-  });
-  return innerFrom(on.apply(void 0, __spreadArray([], __read(args)))).subscribe(onSubscriber);
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/shareReplay.js
-function shareReplay(configOrBufferSize, windowTime2, scheduler) {
-  var _a, _b, _c;
-  var bufferSize;
-  var refCount2 = false;
-  if (configOrBufferSize && typeof configOrBufferSize === "object") {
-    _a = configOrBufferSize.bufferSize, bufferSize = _a === void 0 ? Infinity : _a, _b = configOrBufferSize.windowTime, windowTime2 = _b === void 0 ? Infinity : _b, _c = configOrBufferSize.refCount, refCount2 = _c === void 0 ? false : _c, scheduler = configOrBufferSize.scheduler;
-  } else {
-    bufferSize = configOrBufferSize !== null && configOrBufferSize !== void 0 ? configOrBufferSize : Infinity;
-  }
-  return share({
-    connector: function() {
-      return new ReplaySubject(bufferSize, windowTime2, scheduler);
-    },
-    resetOnError: true,
-    resetOnComplete: false,
-    resetOnRefCountZero: refCount2
-  });
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/skip.js
-function skip(count2) {
-  return filter(function(_, index) {
-    return count2 <= index;
-  });
 }
 
 // node_modules/rxjs/dist/esm5/internal/operators/startWith.js
@@ -3666,21 +3313,6 @@ function takeUntil(notifier) {
       return subscriber.complete();
     }, noop));
     !subscriber.closed && source.subscribe(subscriber);
-  });
-}
-
-// node_modules/rxjs/dist/esm5/internal/operators/takeWhile.js
-function takeWhile(predicate, inclusive) {
-  if (inclusive === void 0) {
-    inclusive = false;
-  }
-  return operate(function(source, subscriber) {
-    var index = 0;
-    source.subscribe(createOperatorSubscriber(subscriber, function(value) {
-      var result = predicate(value, index++);
-      (result || inclusive) && subscriber.next(value);
-      !result && subscriber.complete();
-    }));
   });
 }
 
@@ -12152,6 +11784,304 @@ function performanceMarkFeature(feature) {
   markedFeatures.add(feature);
   performance?.mark?.("mark_feature_usage", { detail: { feature } });
 }
+function noop2(...args) {
+}
+function getNativeRequestAnimationFrame() {
+  const isBrowser = typeof _global["requestAnimationFrame"] === "function";
+  let nativeRequestAnimationFrame = _global[isBrowser ? "requestAnimationFrame" : "setTimeout"];
+  let nativeCancelAnimationFrame = _global[isBrowser ? "cancelAnimationFrame" : "clearTimeout"];
+  if (typeof Zone !== "undefined" && nativeRequestAnimationFrame && nativeCancelAnimationFrame) {
+    const unpatchedRequestAnimationFrame = nativeRequestAnimationFrame[Zone.__symbol__("OriginalDelegate")];
+    if (unpatchedRequestAnimationFrame) {
+      nativeRequestAnimationFrame = unpatchedRequestAnimationFrame;
+    }
+    const unpatchedCancelAnimationFrame = nativeCancelAnimationFrame[Zone.__symbol__("OriginalDelegate")];
+    if (unpatchedCancelAnimationFrame) {
+      nativeCancelAnimationFrame = unpatchedCancelAnimationFrame;
+    }
+  }
+  return { nativeRequestAnimationFrame, nativeCancelAnimationFrame };
+}
+var AsyncStackTaggingZoneSpec = class {
+  constructor(namePrefix, consoleAsyncStackTaggingImpl = console) {
+    this.name = "asyncStackTagging for " + namePrefix;
+    this.createTask = consoleAsyncStackTaggingImpl?.createTask ?? (() => null);
+  }
+  onScheduleTask(delegate, _current, target, task) {
+    task.consoleTask = this.createTask(`Zone - ${task.source || task.type}`);
+    return delegate.scheduleTask(target, task);
+  }
+  onInvokeTask(delegate, _currentZone, targetZone, task, applyThis, applyArgs) {
+    let ret;
+    if (task.consoleTask) {
+      ret = task.consoleTask.run(() => delegate.invokeTask(targetZone, task, applyThis, applyArgs));
+    } else {
+      ret = delegate.invokeTask(targetZone, task, applyThis, applyArgs);
+    }
+    return ret;
+  }
+};
+var NgZone = class _NgZone {
+  constructor({ enableLongStackTrace = false, shouldCoalesceEventChangeDetection = false, shouldCoalesceRunChangeDetection = false }) {
+    this.hasPendingMacrotasks = false;
+    this.hasPendingMicrotasks = false;
+    this.isStable = true;
+    this.onUnstable = new EventEmitter(false);
+    this.onMicrotaskEmpty = new EventEmitter(false);
+    this.onStable = new EventEmitter(false);
+    this.onError = new EventEmitter(false);
+    if (typeof Zone == "undefined") {
+      throw new RuntimeError(908, ngDevMode && `In this configuration Angular requires Zone.js`);
+    }
+    Zone.assertZonePatched();
+    const self = this;
+    self._nesting = 0;
+    self._outer = self._inner = Zone.current;
+    if (ngDevMode) {
+      self._inner = self._inner.fork(new AsyncStackTaggingZoneSpec("Angular"));
+    }
+    if (Zone["TaskTrackingZoneSpec"]) {
+      self._inner = self._inner.fork(new Zone["TaskTrackingZoneSpec"]());
+    }
+    if (enableLongStackTrace && Zone["longStackTraceZoneSpec"]) {
+      self._inner = self._inner.fork(Zone["longStackTraceZoneSpec"]);
+    }
+    self.shouldCoalesceEventChangeDetection = !shouldCoalesceRunChangeDetection && shouldCoalesceEventChangeDetection;
+    self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
+    self.lastRequestAnimationFrameId = -1;
+    self.nativeRequestAnimationFrame = getNativeRequestAnimationFrame().nativeRequestAnimationFrame;
+    forkInnerZoneWithAngularBehavior(self);
+  }
+  /**
+    This method checks whether the method call happens within an Angular Zone instance.
+  */
+  static isInAngularZone() {
+    return typeof Zone !== "undefined" && Zone.current.get("isAngularZone") === true;
+  }
+  /**
+    Assures that the method is called within the Angular Zone, otherwise throws an error.
+  */
+  static assertInAngularZone() {
+    if (!_NgZone.isInAngularZone()) {
+      throw new RuntimeError(909, ngDevMode && "Expected to be in Angular Zone, but it is not!");
+    }
+  }
+  /**
+    Assures that the method is called outside of the Angular Zone, otherwise throws an error.
+  */
+  static assertNotInAngularZone() {
+    if (_NgZone.isInAngularZone()) {
+      throw new RuntimeError(909, ngDevMode && "Expected to not be in Angular Zone, but it is!");
+    }
+  }
+  /**
+   * Executes the `fn` function synchronously within the Angular zone and returns value returned by
+   * the function.
+   *
+   * Running functions via `run` allows you to reenter Angular zone from a task that was executed
+   * outside of the Angular zone (typically started via {@link #runOutsideAngular}).
+   *
+   * Any future tasks or microtasks scheduled from within this function will continue executing from
+   * within the Angular zone.
+   *
+   * If a synchronous error happens it will be rethrown and not reported via `onError`.
+   */
+  run(fn, applyThis, applyArgs) {
+    return this._inner.run(fn, applyThis, applyArgs);
+  }
+  /**
+   * Executes the `fn` function synchronously within the Angular zone as a task and returns value
+   * returned by the function.
+   *
+   * Running functions via `run` allows you to reenter Angular zone from a task that was executed
+   * outside of the Angular zone (typically started via {@link #runOutsideAngular}).
+   *
+   * Any future tasks or microtasks scheduled from within this function will continue executing from
+   * within the Angular zone.
+   *
+   * If a synchronous error happens it will be rethrown and not reported via `onError`.
+   */
+  runTask(fn, applyThis, applyArgs, name) {
+    const zone = this._inner;
+    const task = zone.scheduleEventTask("NgZoneEvent: " + name, fn, EMPTY_PAYLOAD, noop2, noop2);
+    try {
+      return zone.runTask(task, applyThis, applyArgs);
+    } finally {
+      zone.cancelTask(task);
+    }
+  }
+  /**
+   * Same as `run`, except that synchronous errors are caught and forwarded via `onError` and not
+   * rethrown.
+   */
+  runGuarded(fn, applyThis, applyArgs) {
+    return this._inner.runGuarded(fn, applyThis, applyArgs);
+  }
+  /**
+   * Executes the `fn` function synchronously in Angular's parent zone and returns value returned by
+   * the function.
+   *
+   * Running functions via {@link #runOutsideAngular} allows you to escape Angular's zone and do
+   * work that
+   * doesn't trigger Angular change-detection or is subject to Angular's error handling.
+   *
+   * Any future tasks or microtasks scheduled from within this function will continue executing from
+   * outside of the Angular zone.
+   *
+   * Use {@link #run} to reenter the Angular zone and do work that updates the application model.
+   */
+  runOutsideAngular(fn) {
+    return this._outer.run(fn);
+  }
+};
+var EMPTY_PAYLOAD = {};
+function checkStable(zone) {
+  if (zone._nesting == 0 && !zone.hasPendingMicrotasks && !zone.isStable) {
+    try {
+      zone._nesting++;
+      zone.onMicrotaskEmpty.emit(null);
+    } finally {
+      zone._nesting--;
+      if (!zone.hasPendingMicrotasks) {
+        try {
+          zone.runOutsideAngular(() => zone.onStable.emit(null));
+        } finally {
+          zone.isStable = true;
+        }
+      }
+    }
+  }
+}
+function delayChangeDetectionForEvents(zone) {
+  if (zone.isCheckStableRunning || zone.lastRequestAnimationFrameId !== -1) {
+    return;
+  }
+  zone.lastRequestAnimationFrameId = zone.nativeRequestAnimationFrame.call(_global, () => {
+    if (!zone.fakeTopEventTask) {
+      zone.fakeTopEventTask = Zone.root.scheduleEventTask("fakeTopEventTask", () => {
+        zone.lastRequestAnimationFrameId = -1;
+        updateMicroTaskStatus(zone);
+        zone.isCheckStableRunning = true;
+        checkStable(zone);
+        zone.isCheckStableRunning = false;
+      }, void 0, () => {
+      }, () => {
+      });
+    }
+    zone.fakeTopEventTask.invoke();
+  });
+  updateMicroTaskStatus(zone);
+}
+function forkInnerZoneWithAngularBehavior(zone) {
+  const delayChangeDetectionForEventsDelegate = () => {
+    delayChangeDetectionForEvents(zone);
+  };
+  zone._inner = zone._inner.fork({
+    name: "angular",
+    properties: { "isAngularZone": true },
+    onInvokeTask: (delegate, current, target, task, applyThis, applyArgs) => {
+      if (shouldBeIgnoredByZone(applyArgs)) {
+        return delegate.invokeTask(target, task, applyThis, applyArgs);
+      }
+      try {
+        onEnter(zone);
+        return delegate.invokeTask(target, task, applyThis, applyArgs);
+      } finally {
+        if (zone.shouldCoalesceEventChangeDetection && task.type === "eventTask" || zone.shouldCoalesceRunChangeDetection) {
+          delayChangeDetectionForEventsDelegate();
+        }
+        onLeave(zone);
+      }
+    },
+    onInvoke: (delegate, current, target, callback, applyThis, applyArgs, source) => {
+      try {
+        onEnter(zone);
+        return delegate.invoke(target, callback, applyThis, applyArgs, source);
+      } finally {
+        if (zone.shouldCoalesceRunChangeDetection) {
+          delayChangeDetectionForEventsDelegate();
+        }
+        onLeave(zone);
+      }
+    },
+    onHasTask: (delegate, current, target, hasTaskState) => {
+      delegate.hasTask(target, hasTaskState);
+      if (current === target) {
+        if (hasTaskState.change == "microTask") {
+          zone._hasPendingMicrotasks = hasTaskState.microTask;
+          updateMicroTaskStatus(zone);
+          checkStable(zone);
+        } else if (hasTaskState.change == "macroTask") {
+          zone.hasPendingMacrotasks = hasTaskState.macroTask;
+        }
+      }
+    },
+    onHandleError: (delegate, current, target, error) => {
+      delegate.handleError(target, error);
+      zone.runOutsideAngular(() => zone.onError.emit(error));
+      return false;
+    }
+  });
+}
+function updateMicroTaskStatus(zone) {
+  if (zone._hasPendingMicrotasks || (zone.shouldCoalesceEventChangeDetection || zone.shouldCoalesceRunChangeDetection) && zone.lastRequestAnimationFrameId !== -1) {
+    zone.hasPendingMicrotasks = true;
+  } else {
+    zone.hasPendingMicrotasks = false;
+  }
+}
+function onEnter(zone) {
+  zone._nesting++;
+  if (zone.isStable) {
+    zone.isStable = false;
+    zone.onUnstable.emit(null);
+  }
+}
+function onLeave(zone) {
+  zone._nesting--;
+  checkStable(zone);
+}
+var NoopNgZone = class {
+  constructor() {
+    this.hasPendingMicrotasks = false;
+    this.hasPendingMacrotasks = false;
+    this.isStable = true;
+    this.onUnstable = new EventEmitter();
+    this.onMicrotaskEmpty = new EventEmitter();
+    this.onStable = new EventEmitter();
+    this.onError = new EventEmitter();
+  }
+  run(fn, applyThis, applyArgs) {
+    return fn.apply(applyThis, applyArgs);
+  }
+  runGuarded(fn, applyThis, applyArgs) {
+    return fn.apply(applyThis, applyArgs);
+  }
+  runOutsideAngular(fn) {
+    return fn();
+  }
+  runTask(fn, applyThis, applyArgs, name) {
+    return fn.apply(applyThis, applyArgs);
+  }
+};
+function shouldBeIgnoredByZone(applyArgs) {
+  if (!Array.isArray(applyArgs)) {
+    return false;
+  }
+  if (applyArgs.length !== 1) {
+    return false;
+  }
+  return applyArgs[0].data?.["__ignore_ng_zone__"] === true;
+}
+function getNgZone(ngZoneToUse = "zone.js", options) {
+  if (ngZoneToUse === "noop") {
+    return new NoopNgZone();
+  }
+  if (ngZoneToUse === "zone.js") {
+    return new NgZone(options);
+  }
+  return ngZoneToUse;
+}
 var AfterRenderPhase;
 (function(AfterRenderPhase2) {
   AfterRenderPhase2[AfterRenderPhase2["EarlyRead"] = 0] = "EarlyRead";
@@ -12216,6 +12146,7 @@ var AfterRenderCallback = class {
   constructor(phase, callbackFn) {
     this.phase = phase;
     this.callbackFn = callbackFn;
+    this.zone = inject(NgZone);
     this.errorHandler = inject(ErrorHandler, { optional: true });
     inject(ChangeDetectionScheduler, { optional: true })?.notify(
       1
@@ -12224,7 +12155,7 @@ var AfterRenderCallback = class {
   }
   invoke() {
     try {
-      this.callbackFn();
+      this.zone.runOutsideAngular(this.callbackFn);
     } catch (err) {
       this.errorHandler?.handleError(err);
     }
@@ -12852,7 +12783,7 @@ function createRootComponent(componentView, rootComponentDef, rootDirectives, ho
 }
 function setRootNodeAttributes(hostRenderer, componentDef, hostRNode, rootSelectorOrNode) {
   if (rootSelectorOrNode) {
-    setUpAttributes(hostRenderer, hostRNode, ["ng-version", "17.3.7"]);
+    setUpAttributes(hostRenderer, hostRNode, ["ng-version", "17.3.8"]);
   } else {
     const { attrs, classes } = extractAttrsAndClassesFromSelector(componentDef.selectors[0]);
     if (attrs) {
@@ -14458,304 +14389,6 @@ function invokeAllTriggerCleanupFns(lDetails) {
   invokeTriggerCleanupFns(1, lDetails);
   invokeTriggerCleanupFns(0, lDetails);
 }
-function noop2(...args) {
-}
-function getNativeRequestAnimationFrame() {
-  const isBrowser = typeof _global["requestAnimationFrame"] === "function";
-  let nativeRequestAnimationFrame = _global[isBrowser ? "requestAnimationFrame" : "setTimeout"];
-  let nativeCancelAnimationFrame = _global[isBrowser ? "cancelAnimationFrame" : "clearTimeout"];
-  if (typeof Zone !== "undefined" && nativeRequestAnimationFrame && nativeCancelAnimationFrame) {
-    const unpatchedRequestAnimationFrame = nativeRequestAnimationFrame[Zone.__symbol__("OriginalDelegate")];
-    if (unpatchedRequestAnimationFrame) {
-      nativeRequestAnimationFrame = unpatchedRequestAnimationFrame;
-    }
-    const unpatchedCancelAnimationFrame = nativeCancelAnimationFrame[Zone.__symbol__("OriginalDelegate")];
-    if (unpatchedCancelAnimationFrame) {
-      nativeCancelAnimationFrame = unpatchedCancelAnimationFrame;
-    }
-  }
-  return { nativeRequestAnimationFrame, nativeCancelAnimationFrame };
-}
-var AsyncStackTaggingZoneSpec = class {
-  constructor(namePrefix, consoleAsyncStackTaggingImpl = console) {
-    this.name = "asyncStackTagging for " + namePrefix;
-    this.createTask = consoleAsyncStackTaggingImpl?.createTask ?? (() => null);
-  }
-  onScheduleTask(delegate, _current, target, task) {
-    task.consoleTask = this.createTask(`Zone - ${task.source || task.type}`);
-    return delegate.scheduleTask(target, task);
-  }
-  onInvokeTask(delegate, _currentZone, targetZone, task, applyThis, applyArgs) {
-    let ret;
-    if (task.consoleTask) {
-      ret = task.consoleTask.run(() => delegate.invokeTask(targetZone, task, applyThis, applyArgs));
-    } else {
-      ret = delegate.invokeTask(targetZone, task, applyThis, applyArgs);
-    }
-    return ret;
-  }
-};
-var NgZone = class _NgZone {
-  constructor({ enableLongStackTrace = false, shouldCoalesceEventChangeDetection = false, shouldCoalesceRunChangeDetection = false }) {
-    this.hasPendingMacrotasks = false;
-    this.hasPendingMicrotasks = false;
-    this.isStable = true;
-    this.onUnstable = new EventEmitter(false);
-    this.onMicrotaskEmpty = new EventEmitter(false);
-    this.onStable = new EventEmitter(false);
-    this.onError = new EventEmitter(false);
-    if (typeof Zone == "undefined") {
-      throw new RuntimeError(908, ngDevMode && `In this configuration Angular requires Zone.js`);
-    }
-    Zone.assertZonePatched();
-    const self = this;
-    self._nesting = 0;
-    self._outer = self._inner = Zone.current;
-    if (ngDevMode) {
-      self._inner = self._inner.fork(new AsyncStackTaggingZoneSpec("Angular"));
-    }
-    if (Zone["TaskTrackingZoneSpec"]) {
-      self._inner = self._inner.fork(new Zone["TaskTrackingZoneSpec"]());
-    }
-    if (enableLongStackTrace && Zone["longStackTraceZoneSpec"]) {
-      self._inner = self._inner.fork(Zone["longStackTraceZoneSpec"]);
-    }
-    self.shouldCoalesceEventChangeDetection = !shouldCoalesceRunChangeDetection && shouldCoalesceEventChangeDetection;
-    self.shouldCoalesceRunChangeDetection = shouldCoalesceRunChangeDetection;
-    self.lastRequestAnimationFrameId = -1;
-    self.nativeRequestAnimationFrame = getNativeRequestAnimationFrame().nativeRequestAnimationFrame;
-    forkInnerZoneWithAngularBehavior(self);
-  }
-  /**
-    This method checks whether the method call happens within an Angular Zone instance.
-  */
-  static isInAngularZone() {
-    return typeof Zone !== "undefined" && Zone.current.get("isAngularZone") === true;
-  }
-  /**
-    Assures that the method is called within the Angular Zone, otherwise throws an error.
-  */
-  static assertInAngularZone() {
-    if (!_NgZone.isInAngularZone()) {
-      throw new RuntimeError(909, ngDevMode && "Expected to be in Angular Zone, but it is not!");
-    }
-  }
-  /**
-    Assures that the method is called outside of the Angular Zone, otherwise throws an error.
-  */
-  static assertNotInAngularZone() {
-    if (_NgZone.isInAngularZone()) {
-      throw new RuntimeError(909, ngDevMode && "Expected to not be in Angular Zone, but it is!");
-    }
-  }
-  /**
-   * Executes the `fn` function synchronously within the Angular zone and returns value returned by
-   * the function.
-   *
-   * Running functions via `run` allows you to reenter Angular zone from a task that was executed
-   * outside of the Angular zone (typically started via {@link #runOutsideAngular}).
-   *
-   * Any future tasks or microtasks scheduled from within this function will continue executing from
-   * within the Angular zone.
-   *
-   * If a synchronous error happens it will be rethrown and not reported via `onError`.
-   */
-  run(fn, applyThis, applyArgs) {
-    return this._inner.run(fn, applyThis, applyArgs);
-  }
-  /**
-   * Executes the `fn` function synchronously within the Angular zone as a task and returns value
-   * returned by the function.
-   *
-   * Running functions via `run` allows you to reenter Angular zone from a task that was executed
-   * outside of the Angular zone (typically started via {@link #runOutsideAngular}).
-   *
-   * Any future tasks or microtasks scheduled from within this function will continue executing from
-   * within the Angular zone.
-   *
-   * If a synchronous error happens it will be rethrown and not reported via `onError`.
-   */
-  runTask(fn, applyThis, applyArgs, name) {
-    const zone = this._inner;
-    const task = zone.scheduleEventTask("NgZoneEvent: " + name, fn, EMPTY_PAYLOAD, noop2, noop2);
-    try {
-      return zone.runTask(task, applyThis, applyArgs);
-    } finally {
-      zone.cancelTask(task);
-    }
-  }
-  /**
-   * Same as `run`, except that synchronous errors are caught and forwarded via `onError` and not
-   * rethrown.
-   */
-  runGuarded(fn, applyThis, applyArgs) {
-    return this._inner.runGuarded(fn, applyThis, applyArgs);
-  }
-  /**
-   * Executes the `fn` function synchronously in Angular's parent zone and returns value returned by
-   * the function.
-   *
-   * Running functions via {@link #runOutsideAngular} allows you to escape Angular's zone and do
-   * work that
-   * doesn't trigger Angular change-detection or is subject to Angular's error handling.
-   *
-   * Any future tasks or microtasks scheduled from within this function will continue executing from
-   * outside of the Angular zone.
-   *
-   * Use {@link #run} to reenter the Angular zone and do work that updates the application model.
-   */
-  runOutsideAngular(fn) {
-    return this._outer.run(fn);
-  }
-};
-var EMPTY_PAYLOAD = {};
-function checkStable(zone) {
-  if (zone._nesting == 0 && !zone.hasPendingMicrotasks && !zone.isStable) {
-    try {
-      zone._nesting++;
-      zone.onMicrotaskEmpty.emit(null);
-    } finally {
-      zone._nesting--;
-      if (!zone.hasPendingMicrotasks) {
-        try {
-          zone.runOutsideAngular(() => zone.onStable.emit(null));
-        } finally {
-          zone.isStable = true;
-        }
-      }
-    }
-  }
-}
-function delayChangeDetectionForEvents(zone) {
-  if (zone.isCheckStableRunning || zone.lastRequestAnimationFrameId !== -1) {
-    return;
-  }
-  zone.lastRequestAnimationFrameId = zone.nativeRequestAnimationFrame.call(_global, () => {
-    if (!zone.fakeTopEventTask) {
-      zone.fakeTopEventTask = Zone.root.scheduleEventTask("fakeTopEventTask", () => {
-        zone.lastRequestAnimationFrameId = -1;
-        updateMicroTaskStatus(zone);
-        zone.isCheckStableRunning = true;
-        checkStable(zone);
-        zone.isCheckStableRunning = false;
-      }, void 0, () => {
-      }, () => {
-      });
-    }
-    zone.fakeTopEventTask.invoke();
-  });
-  updateMicroTaskStatus(zone);
-}
-function forkInnerZoneWithAngularBehavior(zone) {
-  const delayChangeDetectionForEventsDelegate = () => {
-    delayChangeDetectionForEvents(zone);
-  };
-  zone._inner = zone._inner.fork({
-    name: "angular",
-    properties: { "isAngularZone": true },
-    onInvokeTask: (delegate, current, target, task, applyThis, applyArgs) => {
-      if (shouldBeIgnoredByZone(applyArgs)) {
-        return delegate.invokeTask(target, task, applyThis, applyArgs);
-      }
-      try {
-        onEnter(zone);
-        return delegate.invokeTask(target, task, applyThis, applyArgs);
-      } finally {
-        if (zone.shouldCoalesceEventChangeDetection && task.type === "eventTask" || zone.shouldCoalesceRunChangeDetection) {
-          delayChangeDetectionForEventsDelegate();
-        }
-        onLeave(zone);
-      }
-    },
-    onInvoke: (delegate, current, target, callback, applyThis, applyArgs, source) => {
-      try {
-        onEnter(zone);
-        return delegate.invoke(target, callback, applyThis, applyArgs, source);
-      } finally {
-        if (zone.shouldCoalesceRunChangeDetection) {
-          delayChangeDetectionForEventsDelegate();
-        }
-        onLeave(zone);
-      }
-    },
-    onHasTask: (delegate, current, target, hasTaskState) => {
-      delegate.hasTask(target, hasTaskState);
-      if (current === target) {
-        if (hasTaskState.change == "microTask") {
-          zone._hasPendingMicrotasks = hasTaskState.microTask;
-          updateMicroTaskStatus(zone);
-          checkStable(zone);
-        } else if (hasTaskState.change == "macroTask") {
-          zone.hasPendingMacrotasks = hasTaskState.macroTask;
-        }
-      }
-    },
-    onHandleError: (delegate, current, target, error) => {
-      delegate.handleError(target, error);
-      zone.runOutsideAngular(() => zone.onError.emit(error));
-      return false;
-    }
-  });
-}
-function updateMicroTaskStatus(zone) {
-  if (zone._hasPendingMicrotasks || (zone.shouldCoalesceEventChangeDetection || zone.shouldCoalesceRunChangeDetection) && zone.lastRequestAnimationFrameId !== -1) {
-    zone.hasPendingMicrotasks = true;
-  } else {
-    zone.hasPendingMicrotasks = false;
-  }
-}
-function onEnter(zone) {
-  zone._nesting++;
-  if (zone.isStable) {
-    zone.isStable = false;
-    zone.onUnstable.emit(null);
-  }
-}
-function onLeave(zone) {
-  zone._nesting--;
-  checkStable(zone);
-}
-var NoopNgZone = class {
-  constructor() {
-    this.hasPendingMicrotasks = false;
-    this.hasPendingMacrotasks = false;
-    this.isStable = true;
-    this.onUnstable = new EventEmitter();
-    this.onMicrotaskEmpty = new EventEmitter();
-    this.onStable = new EventEmitter();
-    this.onError = new EventEmitter();
-  }
-  run(fn, applyThis, applyArgs) {
-    return fn.apply(applyThis, applyArgs);
-  }
-  runGuarded(fn, applyThis, applyArgs) {
-    return fn.apply(applyThis, applyArgs);
-  }
-  runOutsideAngular(fn) {
-    return fn();
-  }
-  runTask(fn, applyThis, applyArgs, name) {
-    return fn.apply(applyThis, applyArgs);
-  }
-};
-function shouldBeIgnoredByZone(applyArgs) {
-  if (!Array.isArray(applyArgs)) {
-    return false;
-  }
-  if (applyArgs.length !== 1) {
-    return false;
-  }
-  return applyArgs[0].data?.["__ignore_ng_zone__"] === true;
-}
-function getNgZone(ngZoneToUse = "zone.js", options) {
-  if (ngZoneToUse === "noop") {
-    return new NoopNgZone();
-  }
-  if (ngZoneToUse === "zone.js") {
-    return new NgZone(options);
-  }
-  return ngZoneToUse;
-}
 function getDeferBlockDataIndex(deferBlockIndex) {
   return deferBlockIndex + 1;
 }
@@ -15422,20 +15055,24 @@ function scheduleDelayedTrigger(scheduleFn) {
   const lView = getLView();
   const tNode = getCurrentTNode();
   renderPlaceholder(lView, tNode);
-  const cleanupFn = scheduleFn(() => triggerDeferBlock(lView, tNode), lView);
-  const lDetails = getLDeferBlockDetails(lView, tNode);
-  storeTriggerCleanupFn(0, lDetails, cleanupFn);
+  if (isPlatformBrowser(lView[INJECTOR])) {
+    const cleanupFn = scheduleFn(() => triggerDeferBlock(lView, tNode), lView);
+    const lDetails = getLDeferBlockDetails(lView, tNode);
+    storeTriggerCleanupFn(0, lDetails, cleanupFn);
+  }
 }
 function scheduleDelayedPrefetching(scheduleFn) {
   const lView = getLView();
-  const tNode = getCurrentTNode();
-  const tView = lView[TVIEW];
-  const tDetails = getTDeferBlockDetails(tView, tNode);
-  if (tDetails.loadingState === DeferDependenciesLoadingState.NOT_STARTED) {
-    const lDetails = getLDeferBlockDetails(lView, tNode);
-    const prefetch = () => triggerPrefetching(tDetails, lView, tNode);
-    const cleanupFn = scheduleFn(prefetch, lView);
-    storeTriggerCleanupFn(1, lDetails, cleanupFn);
+  if (isPlatformBrowser(lView[INJECTOR])) {
+    const tNode = getCurrentTNode();
+    const tView = lView[TVIEW];
+    const tDetails = getTDeferBlockDetails(tView, tNode);
+    if (tDetails.loadingState === DeferDependenciesLoadingState.NOT_STARTED) {
+      const lDetails = getLDeferBlockDetails(lView, tNode);
+      const prefetch = () => triggerPrefetching(tDetails, lView, tNode);
+      const cleanupFn = scheduleFn(prefetch, lView);
+      storeTriggerCleanupFn(1, lDetails, cleanupFn);
+    }
   }
 }
 function renderDeferBlockState(newState, tNode, lContainer, skipTimerScheduling = false) {
@@ -20486,7 +20123,7 @@ var Version = class {
     this.patch = parts.slice(2).join(".");
   }
 };
-var VERSION = new Version("17.3.7");
+var VERSION = new Version("17.3.8");
 var _Console = class _Console {
   log(message) {
     console.log(message);
@@ -24464,8 +24101,6 @@ export {
   ConnectableObservable,
   Subject,
   BehaviorSubject,
-  asapScheduler,
-  animationFrameScheduler,
   EMPTY,
   from,
   of,
@@ -24479,29 +24114,20 @@ export {
   concat,
   defer,
   forkJoin,
-  fromEvent,
-  merge,
   filter,
-  auditTime,
   catchError,
   concatMap,
-  debounceTime,
   defaultIfEmpty,
   take,
   mapTo,
-  distinctUntilChanged,
   finalize,
   first,
   takeLast,
   last2 as last,
-  pairwise,
   scan,
-  shareReplay,
-  skip,
   startWith,
   switchMap,
   takeUntil,
-  takeWhile,
   tap,
   XSS_SECURITY_URL,
   RuntimeError,
@@ -24649,6 +24275,8 @@ export {
   NOT_FOUND_CHECK_ONLY_ELEMENT_INJECTOR,
   assertNotInReactiveContext,
   performanceMarkFeature,
+  NgZone,
+  NoopNgZone,
   AfterRenderPhase,
   internalAfterNextRender,
   afterRender,
@@ -24700,8 +24328,6 @@ export {
   ɵɵtemplate,
   DeferBlockState,
   DeferBlockBehavior,
-  NgZone,
-  NoopNgZone,
   DEFER_BLOCK_DEPENDENCY_INTERCEPTOR,
   DEFER_BLOCK_CONFIG,
   ɵɵdeferEnableTimerScheduling,
@@ -24960,14 +24586,14 @@ export {
 
 @angular/core/fesm2022/primitives/signals.mjs:
   (**
-   * @license Angular v17.3.7
+   * @license Angular v17.3.8
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
 
 @angular/core/fesm2022/core.mjs:
   (**
-   * @license Angular v17.3.7
+   * @license Angular v17.3.8
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
@@ -24999,4 +24625,4 @@ export {
    * found in the LICENSE file at https://angular.io/license
    *)
 */
-//# sourceMappingURL=chunk-7EDQOQWO.js.map
+//# sourceMappingURL=chunk-ORL24GRQ.js.map

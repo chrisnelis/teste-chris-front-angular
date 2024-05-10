@@ -27,6 +27,8 @@ export class TitleDetailComponent extends ApiService {
   cast: any
   vote: any = 0
 
+  mediaVote: any
+
   constructor(
     private route: ActivatedRoute,
     private siteService: SiteService,
@@ -53,8 +55,13 @@ export class TitleDetailComponent extends ApiService {
                   this.objData = ret.film[0]
                   this.director = ret.director
                   this.cast = ret.cast
-                  this.loader = false
-          }
+
+
+            this.siteService.getCritic(this.id).subscribe((data: any) =>{
+                this.mediaVote = data[0]
+                this.loader = false
+               })
+            }
         })
     }
 
@@ -65,11 +72,24 @@ export class TitleDetailComponent extends ApiService {
 
     selectVote(n: any){
         this.vote = n
-        console.log(this.vote, " meu voto")
     }
 
     sendVote(){
-
+      if(this.vote > 0){
+      let obj = {
+        user_id: this.userLogOn.id,
+        note: this.vote,
+        id: this.id
+      }
+      this.siteService.insertCritic(obj).subscribe((ret: any) =>{
+         if(ret){
+          this.getTitle()
+           alert("Avaliação computada com sucesso")
+         }
+       })
+      }else{
+        alert("Selecione sua Avaliação")
+      }
     }
 
 

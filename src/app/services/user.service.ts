@@ -16,6 +16,7 @@ export class UserService extends ApiService {
   ) {
     super();  }
 
+    //rota para autenticar usuario no sistema
   authLogin(email: any, password: any){
     let objUser = {
       email: email,
@@ -25,13 +26,12 @@ export class UserService extends ApiService {
   }
 
 
-validateUser(email: any){
-  return this.http.get(this.apiUrl+'users/validate/'+email, this.httpOptions)
- }
-
-
  getUsers(){
   return this.http.get(this.apiUrl+'users/select/user', this.httpOptions)
+ }
+
+ getUserEdit(id: any){
+  return this.http.get(this.apiUrl+'users/get/user/'+id, this.httpOptions)
  }
 
 
@@ -40,23 +40,27 @@ validateUser(email: any){
  }
 
 
- updateUser(user: any, id: number){
-  return this.http.post(this.apiUrl+'users/update/user/'+id,user, this.httpOptions)
+ updateUser( id: number, user: any, level: number){
+  let obj = {
+    level: level,
+    user: user
+  }
+  return this.http.post(this.apiUrl+'users/update/user/'+id,obj, this.httpOptions)
 }
 
-updatePass(password: any, id: number){
-let obj = {
-  password: password
-}
-return this.http.post(this.apiUrl+'users/update/password/'+id, obj, this.httpOptions)
-}
+updatePass(id: number, password: any){
+    let obj = {
+      password: password
+    }
+  return this.http.post(this.apiUrl+'users/update/password/'+id, obj, this.httpOptions)
+  }
 
 
 statusUser(id: any, status: any){
-let obj = {
-  status: status
-}
-return this.http.post(this.apiUrl +'users/update/active-user/'+id, obj, this.httpOptions)
+    let obj = {
+      status: status
+    }
+  return this.http.post(this.apiUrl +'users/update/active-user/'+id, obj, this.httpOptions)
 }
 
 

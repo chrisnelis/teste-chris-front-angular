@@ -12,6 +12,7 @@
           <th>Durcao</th>
           <th>Ativo</th>
           <th>Detalhes</th>
+          <th>Status</th>
         </tr>
       </thead>
       <tbody>
@@ -26,6 +27,13 @@
                     <img src="../../../assets/icons/folder.svg" alt="icon">
                 </button>
             </td>
+            <td>
+              <div class="form-check form-switch d-flex justify-content-center">
+              <input class="form-check-input pointer" type="checkbox" role="switch" id="flexSwitchCheckDefault" [checked]="oFA.active == 1"
+                (click)="changeStatusTitle(oFA.active, oFA.id)">
+              <label class="form-check-label" for="flexSwitchCheckDefault">&nbsp; <span *ngIf="oFA.active == 0">in</span>ativo</label>
+            </div>
+          </td>
         </tr>
       </tbody>
      </table>

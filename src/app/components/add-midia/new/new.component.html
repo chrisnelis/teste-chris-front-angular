@@ -19,10 +19,12 @@
     <select  class="input-card" [(ngModel)]="description">
       <option value="Ação">Ação</option>
       <option value="Aventura">Aventura</option>
+      <option value="Aventura">Biografia</option>
       <option value="Cinema de arte">Cinema de arte</option>
       <option value="Chanchada">Chanchada</option>
       <option value="Comédia">Comédia</option>
       <option value="Dança">Dança</option>
+      <option value="Drama">Drama</option>
       <option value="Documentário">Documentário</option>
       <option value="Espionagem">Espionagem</option>
       <option value="Faroeste">Faroeste</option>
@@ -64,7 +66,7 @@
               <button class="btn btn-secondary mt-2" (click)="addCast()">Adicionar <img src="../../../../assets/icons/arrow.svg" alt="icon"></button>
            </div>
            <div class="col-6">
-            <ul class="list-group list-group-flush">
+            <ul class="list-group list-group-flush overflow-list">
               <li class="list-group-item" *ngFor="let oC of cast;let i = index">
                 <div class="row">
                     <div class="col-8">
@@ -79,15 +81,15 @@
             </ul>
            </div>
        </div>
-
+     <hr>
        <div class="row mt-4">
               <div class="col-6">
                 <b>Diretor</b>
                 <input type="text" class="input-card" [(ngModel)]="director_name"  [maxlength]="50">
                 <button class="btn btn-secondary mt-2" (click)="addDirector()">Adicionar <img src="../../../../assets/icons/arrow.svg" alt="icon"></button>
             </div>
-            <div class="col-6">
-              <ul class="list-group list-group-flush">
+            <div class="col-6 ">
+              <ul class="list-group list-group-flush overflow-list">
                 <li class="list-group-item" *ngFor="let oD of director;let i = index">
                   <div class="row">
                       <div class="col-8">

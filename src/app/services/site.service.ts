@@ -31,9 +31,46 @@ export class SiteService extends ApiService {
     return this.http.post(this.apiUrl+"film/insert/film", obj, this.httpOptions)
   }
 
+
+  updateTitle(id: any, obj: any){
+    return this.http.post(this.apiUrl+"film/update/film/"+id, obj, this.httpOptions)
+  }
+
   insertImgTitle(id: any, file: any){
-    console.log(file, " service indo imagem")
     return this.http.post(this.apiUrl+"film/insert/img/"+ id, file)
+  }
+
+  insertDirector(id: any, obj: any){
+    return this.http.post(this.apiUrl+"film/insert/director/"+ id, obj, this.httpOptions)
+  }
+
+  insertCast(id: any, obj: any){
+    return this.http.post(this.apiUrl+"film/insert/cast/"+ id, obj, this.httpOptions)
+  }
+
+
+  deleteCast(id: number){
+    return this.http.delete(this.apiUrl + "film/delete/cast/"+id, this.httpOptions)
+  }
+
+  deleteDirector(id: number){
+    return this.http.delete(this.apiUrl + "film/delete/director/"+id, this.httpOptions)
+  }
+
+
+  insertCritic(obj: any){
+    return this.http.post(this.apiUrl+"film/insert/critic", obj, this.httpOptions)
+  }
+
+  changeStatusTitle(id: any, status: any){
+    let obj = {
+      status: status
+    }
+  return this.http.post(this.apiUrl +'film/update/status-title/'+id, obj, this.httpOptions)
+}
+
+  getCritic(id: any){
+    return this.http.get(this.apiUrl + "film/get/critic/"+id)
   }
 
 }

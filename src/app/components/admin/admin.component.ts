@@ -21,13 +21,22 @@ export class AdminComponent {
 
  tab: number = 1
  loader: boolean = false
+ loaderSave: boolean = false
+ loaderEdit: boolean = false
+
  objUser: any
  email: any
  user: any
-level: number = 0
+ level: number = 0
 
  newPassword: any
  samePassword: any
+ newPasswordEdit: any
+ samePasswordEdit: any
+
+ userEdit: any
+ levelEdit: number = 0
+ idEdit: any
 
  constructor(
   private userService: UserService
@@ -57,6 +66,7 @@ ngOnInit() {
         if(this.newPassword === this.samePassword){
           if(this.samePassword?.length >= 6){
             if(this.level > 0){
+              this.loaderSave = true
               let objCadastro = {
                 email: this.email.replace(/\s/g, ''), //removendo possíveis espaços no campo de email
                 user: this.user,
@@ -71,6 +81,7 @@ ngOnInit() {
                     this.user = ""
                     this.samePassword =""
                     this.level = 0
+                    this.loaderSave = false
                     alert(ret.message)
                   }
                 })
@@ -92,7 +103,7 @@ ngOnInit() {
     }
 
 
-
+   //alterar status da conta do usuario, ativo ou inativo
     changeStatus(status: any, id: any){
       if(status == 1){
        var setstatus = 0
@@ -107,5 +118,46 @@ ngOnInit() {
       })
     }
 
+
+    getUserEdit(id: any){
+        this.userService.getUserEdit(id).subscribe((ret: any)=>{
+          this.userEdit = ret[0].user
+          this.levelEdit = ret[0].level
+          this.idEdit = id
+        })
+    }
+
+    saveEditUser(){
+       if(this.userEdit){
+        this.loaderEdit = true
+          this.userService.updateUser(this.idEdit, this.userEdit, this.levelEdit).subscribe((data: any)=>{
+            if(data){
+              this.getUsers()
+              this.loaderEdit = false
+              alert("Alterado com sucesso")
+            }
+          })
+       }else{
+         alert("Nome invalido")
+       }
+    }
+
+    savePassEdit(){
+      if(this.newPasswordEdit === this.samePasswordEdit){
+        if(this.samePasswordEdit?.length >= 6){
+
+          this.userService.updatePass(this.idEdit, this.samePasswordEdit).subscribe((ret: any )=>{
+              if(ret){
+                alert("Senha alterada")
+                window.location.reload()
+              }
+          })
+        }else{
+          alert("A senha deve conter no mínimo 6 dígitos")
+        }
+      }else{
+        alert("As senhas nao coincidem")
+      }
+    }
 
 }

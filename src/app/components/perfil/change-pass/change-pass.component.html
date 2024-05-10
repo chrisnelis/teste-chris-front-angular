@@ -1,0 +1,14 @@
+<div>
+  <div>
+    <label>Nova senha</label><br>
+    <input class="input-card" type="password" [(ngModel)]="newPassword"> <br>
+  <small class="text-danger">*A senha deve conter no mínimo 6 dígitos.</small>
+  </div>
+
+  <div class="mb-4">
+    <label>Confirmar senha</label><br>
+    <input class="input-card" type="password" [(ngModel)]="samePassword">
+  </div>
+
+  <button class="btn btn-success" (click)="savePass()">Salvar</button>
+</div>

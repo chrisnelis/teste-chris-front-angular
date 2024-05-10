@@ -2,3 +2,31 @@ section{
   margin: auto;
   width: 80vw;
 }
+
+.input-card{
+  width: 100%;
+  max-width: 450px;
+  height: 50px;
+  background-color: #FFF;
+}
+
+#sinopse{
+  margin-top: 20px;
+  border: 1px solid #000;
+}
+
+
+
+.overflow-list{
+  max-height: 300px;
+  overflow-y: 300px;
+  overflow: auto;
+  overflow-x: hidden;
+}
+
+.card-info{
+ border: 2px solid #000;
+ border-radius: 10px;
+ margin-left: 50px;
+ padding: 20px;
+}

@@ -11,7 +11,16 @@
 }
 
 section{
+  max-height: 80vh;
+  overflow: 80vh;
+  overflow-x: hidden;
+  overflow-y:  auto;
+}
+
+
+.overflow-list{
+  max-height: 300px;
+  overflow-y: 300px;
   overflow: auto;
   overflow-x: hidden;
-  overflow-y:  50vh;
 }

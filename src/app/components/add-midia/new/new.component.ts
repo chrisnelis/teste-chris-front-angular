@@ -52,7 +52,7 @@ export class NewComponent extends ApiService {
 
 
    uploadimg(e: any){
-    if(e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png'|| e.target.files[0].type == 'webp'){
+    if(e.target.files[0].type == 'image/jpeg' || e.target.files[0].type == 'image/png'|| e.target.files[0].type == 'image/webp'){
         var reader = new FileReader();
         //Pre carregando a visualizacao no front
         reader.onload = (event: any) => {
@@ -68,12 +68,14 @@ export class NewComponent extends ApiService {
 
 
   addCast(){
-
+    if(this.actor_name && this.actor_name?.length > 0){
         this.cast.push({
           actor: this.actor_name
         })
         this.actor_name = ""
-     console.log(this.cast)
+    }else{
+        alert("Digite um nome valido")
+    }
 
   }
 
@@ -83,11 +85,14 @@ export class NewComponent extends ApiService {
 
 
   addDirector(){
+    if(this.director_name && this.director_name?.length > 0){
         this.director.push({
           director: this.director_name
         })
         this.director_name = ""
-     console.log(this.director)
+        }else{
+          alert("Digite um nome valido")
+      }
   }
 
   removeDirector(index: any){
@@ -96,6 +101,7 @@ export class NewComponent extends ApiService {
 
 
    saveTitle(){
+    if(this.title && this.description && this.year && this.time && this.type && this.cast &&this.sinopse && this.director){
     this.loaderAdd = true
       let objData = {
         film: this.title,
@@ -117,10 +123,23 @@ export class NewComponent extends ApiService {
               if(data){
                 this.loaderAdd = false
                 alert("cadastrado com sucesso")
-              }
+                this.title = ''
+                 this.description = ''
+                 this.year = ''
+                 this.time = ''
+                 this.type = ''
+                 this.cast = []
+                 this.sinopse = ''
+                 this.director = []
+                 this.img = ''
+                 this.usr = ''
+                }
             })
           }
       })
+    }else{
+      alert("Preencha todos os campos")
+    }
    }
 
 }

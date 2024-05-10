@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid">
-      <img src="../../../assets/images/logo.png" class="logo">
+      <img src="../../../assets/images/logo.png" class="logo" (click)="navigate('/')">
     <button class="navbar-toggler bg-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
@@ -22,14 +22,28 @@
           <div class="dropdown" *ngIf="user.level == 2">
               <a class="nav-link btn-menu" type="button" data-bs-toggle="dropdown" aria-expanded="false">Minha conta</a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" >Alterar senha</a></li>
-                <li><a class="dropdown-item" >Nome de exibição</a></li>
+                <li><a class="dropdown-item pointer" data-bs-toggle="modal" data-bs-target="#passModal">Alterar senha</a></li>
               </ul>
          </div>
-
           <a class="nav-link btn-menu" type="button" (click)="logout()">Sair</a>
         </div>
       </div>
     </div>
   </div>
 </nav>
+
+
+<!-- Modal de senha do usuario  -->
+<div class="modal fade" id="passModal" tabindex="-1" aria-labelledby="passModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fs-5" id="passModalLabel">Alerar senha</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <app-change-pass></app-change-pass>
+      </div>
+    </div>
+  </div>
+</div>

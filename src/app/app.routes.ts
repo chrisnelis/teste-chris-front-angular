@@ -23,14 +23,11 @@ export const routes: Routes = [
   component: TitleDetailComponent
   },
 
-
+    //Tela do administrador depende de Autenticação
   { path: 'admin/edit/:id',
-  component: EditComponent
+  component: EditComponent,
+  canActivate: [AuthAdminService]
   },
-
-
-
-  //Tela do administrador depende de Autenticação
  { path: 'admin',
    component: AdminComponent,
    canActivate: [AuthAdminService]

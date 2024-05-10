@@ -3,11 +3,15 @@ import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { ChangePassComponent } from '../perfil/change-pass/change-pass.component';
 
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    ChangePassComponent
+  ],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss'
 })

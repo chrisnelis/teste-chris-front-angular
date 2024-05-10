@@ -8,7 +8,7 @@
 
 
   <div class="row">
-    <div class="col-md-2 col-6" *ngFor="let oF of objFilms">
+    <div class="col-6 col-sm-6 col-md-4 col-lg-4 col-xl-3 col-xxl-2" *ngFor="let oF of objFilms">
     <div class="card-home" (click)="openTitle(oF.id)">
       <div class="box-img">
         <img [src]='apiUrl+oF.image' [alt]='oF.film_name' class="img-film"/>
@@ -20,7 +20,11 @@
          </div>
 
          <div class="box-title">
-            <span class="fw-bold">{{oF.film_name}}</span>
+          <span  class="fw-bold" *ngIf="oF.film_name.length >= 40" >
+            {{ oF.film_name.substring(0, 40) + '...' }}
+         </span>
+
+        <span  class="fw-bold" *ngIf="oF.film_name.length < 40"> {{oF.film_name}} </span>
          </div>
 
          <div class="box-especs">

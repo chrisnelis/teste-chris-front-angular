@@ -42,9 +42,21 @@ export class AddMidiaComponent extends ApiService{
    }
 
 
-   insertFilms(){
-
+   changeStatusTitle(status: number, id: number){
+    if(status == 1){
+      var setstatus = 0
+     }else{
+       var setstatus = 1
+     }
+     this.siteService.changeStatusTitle(id, setstatus).subscribe((ret: any)=>{
+         if(ret){
+           this.getFilms()
+           alert("Alterado com sucesso")
+         }
+     })
    }
+
+
 
    openEdit(id: any){
     this.router.navigate(['/admin/edit/'+id])

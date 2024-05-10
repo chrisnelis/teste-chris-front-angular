@@ -1,7 +1,7 @@
 import {
   Title
-} from "./chunk-2JJ6A24E.js";
-import "./chunk-NLDKQROU.js";
+} from "./chunk-PEHEFW4X.js";
+import "./chunk-RWIWH72V.js";
 import {
   DOCUMENT,
   HashLocationStrategy,
@@ -10,7 +10,7 @@ import {
   LocationStrategy,
   PathLocationStrategy,
   ViewportScroller
-} from "./chunk-534FON2H.js";
+} from "./chunk-46VL4GRD.js";
 import {
   APP_BOOTSTRAP_LISTENER,
   APP_INITIALIZER,
@@ -114,7 +114,7 @@ import {
   ɵɵloadQuery,
   ɵɵqueryRefresh,
   ɵɵsanitizeUrlOrResourceUrl
-} from "./chunk-7EDQOQWO.js";
+} from "./chunk-ORL24GRQ.js";
 
 // node_modules/@angular/router/fesm2022/router.mjs
 var PRIMARY_OUTLET = "primary";
@@ -3369,7 +3369,7 @@ function createViewTransition(injector, from2, to) {
   return injector.get(NgZone).runOutsideAngular(() => {
     if (!document.startViewTransition || transitionOptions.skipNextTransition) {
       transitionOptions.skipNextTransition = false;
-      return Promise.resolve();
+      return new Promise((resolve) => setTimeout(resolve));
     }
     let resolveViewTransitionStarted;
     const viewTransitionStarted = new Promise((resolve) => {
@@ -5526,7 +5526,7 @@ function mapToCanDeactivate(providers) {
 function mapToResolve(provider) {
   return (...params) => inject(provider).resolve(...params);
 }
-var VERSION = new Version("17.3.7");
+var VERSION = new Version("17.3.8");
 export {
   ActivatedRoute,
   ActivatedRouteSnapshot,
@@ -5609,7 +5609,7 @@ export {
 
 @angular/router/fesm2022/router.mjs:
   (**
-   * @license Angular v17.3.7
+   * @license Angular v17.3.8
    * (c) 2010-2024 Google LLC. https://angular.io/
    * License: MIT
    *)
